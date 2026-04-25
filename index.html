@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HRFlow - Employee Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    animation: {
+                        'fade-in': 'fadeIn 0.5s ease-out forwards',
+                        'scale-in': 'scaleIn 0.3s ease-out forwards',
+                    },
+                    keyframes: {
+                        fadeIn: { '0%': { opacity: '0' }, '100%': { opacity: '1' } },
+                        scaleIn: { '0%': { transform: 'scale(0.95)', opacity: '0' }, '100%': { transform: 'scale(1)', opacity: '1' } }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .glass-card { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); border: 1px solid rgba(226, 232, 240, 0.8); }
+        .status-step { position: relative; flex: 1; text-align: center; }
+        .status-step:not(:last-child)::after {
+            content: ''; position: absolute; top: 12px; left: 50%; width: 100%; height: 2px;
+            background: #e2e8f0; z-index: 0;
+        }
+        .status-step.active:not(:last-child)::after { background: #2563eb; }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen p-4 md:p-8">
+
+    <div class="max-w-5xl mx-auto">
+        <!-- Header -->
+        <header class="flex justify-between items-center mb-12">
+            <div class="flex items-center gap-3">
+                <div class="bg-blue-600 p-2.5 rounded-2xl text-white shadow-lg shadow-blue-500/20">
+                    <i data-lucide="user-round"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-extrabold tracking-tight">Portal Karyawan</h1>
+                    <p class="text-[10px] uppercase font-black text-slate-400 tracking-widest">HRFlow Lite Support System</p>
+                </div>
+            </div>
+            <div class="text-right hidden md:block">
+                <p class="text-[10px] font-black text-slate-400 uppercase">Status Sistem</p>
+                <div class="flex items-center gap-2 justify-end">
+                    <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                    <span class="text-xs font-bold">Terhubung ke HR Dashboard</span>
+                </div>
+            </div>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            <!-- Form Section -->
+            <div class="lg:col-span-7">
+                <div class="glass-card p-8 rounded-[2.5rem] shadow-sm">
+                    <div class="mb-8">
+                        <h2 class="text-2xl font-black">Kirim Tiket Baru</h2>
+                        <p class="text-sm text-slate-500 mt-1">Sampaikan keluhan, permintaan fasilitas, atau kendala administratif.</p>
+                    </div>
+                    <form id="ticketForm" onsubmit="submitTicket(event)" class="space-y-5">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="text-[10px] font-black uppercase text-slate-400 mb-1 block">Nama Lengkap</label>
+                                <input type="text" id="empName" required placeholder="Contoh: John Doe" class="w-full px-4 py-3 bg-slate-100 border-none rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none font-medium">
+                            </div>
+                            <div>
+                                <label class="text-[10px] font-black uppercase text-slate-400 mb-1 block">Divisi</label>
+                                <input type="text" id="empDiv" required placeholder="Masukkan Divisi Anda" class="w-full px-4 py-3 bg-slate-100 border-none rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none font-medium">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-black uppercase text-slate-400 mb-1 block">Kategori Kendala</label>
+                            <select id="empCat" class="w-full px-4 py-3 bg-slate-100 border-none rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none font-bold">
+                                <option value="Payroll">Gaji & Payroll</option>
+                                <option value="Hardware">Perangkat IT / Laptop</option>
+                                <option value="Facilities">Fasilitas Kantor</option>
+                                <option value="Admin">Administrasi HR</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-black uppercase text-slate-400 mb-1 block">Detail Masalah</label>
+                            <textarea id="empDesc" rows="4" required placeholder="Jelaskan kendala Anda secara detail agar tim HR dapat membantu lebih cepat..." class="w-full px-4 py-3 bg-slate-100 border-none rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none font-medium"></textarea>
+                        </div>
+                        <button type="submit" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-black uppercase tracking-wider shadow-xl shadow-blue-500/20 hover:bg-blue-700 transition transform active:scale-95 flex items-center justify-center gap-2">
+                            <i data-lucide="send" size="18"></i> Kirim Laporan
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Tracker Section -->
+            <div class="lg:col-span-5 space-y-6">
+                <div class="glass-card p-8 rounded-[2.5rem] bg-gradient-to-br from-white to-blue-50/50">
+                    <h2 class="text-xl font-black">Lacak Progres</h2>
+                    <p class="text-xs text-slate-500 mt-1 uppercase font-bold tracking-widest mb-6">Cek Tahapan Laporan Anda</p>
+                    
+                    <div class="relative mb-8">
+                        <input type="text" id="trackInput" placeholder="ID Tiket (Contoh: HR-2026-XXXX)" class="w-full pl-4 pr-12 py-4 rounded-2xl bg-white border-none text-sm font-black focus:ring-2 focus:ring-blue-500 outline-none shadow-sm uppercase">
+                        <button onclick="trackTicket()" class="absolute right-2 top-2 p-2 bg-blue-600 text-white rounded-xl">
+                            <i data-lucide="search" size="20"></i>
+                        </button>
+                    </div>
+
+                    <div id="trackResult" class="hidden animate-fade-in space-y-6">
+                        <div class="flex justify-between items-center border-b pb-4">
+                            <div>
+                                <p id="resName" class="font-black text-lg">---</p>
+                                <p id="resId" class="text-[10px] font-bold text-blue-600 uppercase tracking-tighter">ID: ---</p>
+                            </div>
+                            <span id="resStatus" class="px-3 py-1 bg-blue-100 text-blue-600 text-[9px] font-black rounded-full uppercase">---</span>
+                        </div>
+                        
+                        <!-- Progress Stepper -->
+                        <div class="flex justify-between pt-4">
+                            <div class="status-step" id="step-pending">
+                                <div class="w-6 h-6 mx-auto rounded-full bg-slate-200 flex items-center justify-center text-white text-[10px] z-10 relative">1</div>
+                                <p class="text-[8px] mt-2 font-black uppercase text-slate-400">Terkirim</p>
+                            </div>
+                            <div class="status-step" id="step-progress">
+                                <div class="w-6 h-6 mx-auto rounded-full bg-slate-200 flex items-center justify-center text-white text-[10px] z-10 relative">2</div>
+                                <p class="text-[8px] mt-2 font-black uppercase text-slate-400">Proses</p>
+                            </div>
+                            <div class="status-step" id="step-done">
+                                <div class="w-6 h-6 mx-auto rounded-full bg-slate-200 flex items-center justify-center text-white text-[10px] z-10 relative">3</div>
+                                <p class="text-[8px] mt-2 font-black uppercase text-slate-400">Selesai</p>
+                            </div>
+                        </div>
+
+                        <div class="p-4 bg-white/50 rounded-2xl border border-blue-100 italic text-[11px] text-slate-500 leading-relaxed">
+                            <span class="font-bold text-blue-600 uppercase block mb-1">Catatan HR:</span>
+                            <span id="resNote">Mohon tunggu, tim kami sedang meninjau laporan Anda.</span>
+                        </div>
+                    </div>
+
+                    <div id="trackEmpty" class="text-center py-10 border-2 border-dashed border-slate-100 rounded-3xl">
+                        <i data-lucide="search-code" class="mx-auto text-slate-200 mb-2" size="32"></i>
+                        <p class="text-[10px] font-bold text-slate-300 uppercase tracking-widest italic">Belum ada ID yang dicek</p>
+                    </div>
+                </div>
+
+                <div class="p-6 bg-slate-900 rounded-[2rem] text-white flex items-center gap-4">
+                    <div class="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center">
+                        <i data-lucide="phone-call" size="20"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs font-bold">Butuh Bantuan IT?</p>
+                        <p class="text-[10px] text-slate-400 uppercase tracking-tighter">Ext. 104 (Office Hour)</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div id="successModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-md z-50 flex items-center justify-center p-4">
+        <div class="bg-white p-10 rounded-[2.5rem] shadow-2xl w-full max-w-md text-center animate-scale-in">
+            <div class="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-6">
+                <i data-lucide="check-circle" size="40"></i>
+            </div>
+            <h2 class="text-2xl font-black italic">Tiket Terkirim!</h2>
+            <p class="text-slate-500 mt-2 text-sm">Laporan Anda sudah masuk ke sistem HR.</p>
+            
+            <div class="mt-8 bg-slate-50 p-6 rounded-3xl border-2 border-dashed border-blue-200">
+                <p class="text-[10px] font-black uppercase text-slate-400 mb-1">Simpan ID Tiket Anda</p>
+                <div id="newTicketId" class="text-3xl font-black text-blue-600 tracking-tighter">HR-2026-0000</div>
+                <button onclick="copyId()" class="mt-4 flex items-center gap-2 mx-auto text-[10px] font-black text-slate-500 hover:text-blue-600 uppercase">
+                    <i data-lucide="copy" size="14"></i> Salin ID
+                </button>
+            </div>
+
+            <div class="mt-10 flex flex-col gap-3">
+                <button onclick="closeAndTrack()" class="w-full py-4 bg-blue-600 text-white rounded-2xl font-black uppercase shadow-lg shadow-blue-500/20 hover:bg-blue-700 transition active:scale-95">Lacak Sekarang</button>
+                <button onclick="location.reload()" class="text-xs font-bold text-slate-400 uppercase tracking-widest">Tutup</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        lucide.createIcons();
+        let currentGeneratedId = '';
+
+        function submitTicket(e) {
+            e.preventDefault();
+            const id = `HR-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 8999)}`;
+            currentGeneratedId = id;
+
+            const newTicket = {
+                id,
+                employeeName: document.getElementById('empName').value,
+                division: document.getElementById('empDiv').value,
+                category: document.getElementById('empCat').value,
+                description: document.getElementById('empDesc').value,
+                status: 'Pending',
+                priority: 'Medium',
+                date: new Date().toLocaleDateString('id-ID'),
+                timestamp: Date.now()
+            };
+
+            // Simpan ke localStorage (Integrasi dengan Dashboard)
+            let tickets = JSON.parse(localStorage.getItem('hrflow_tickets')) || [];
+            tickets.unshift(newTicket);
+            localStorage.setItem('hrflow_tickets', JSON.stringify(tickets));
+
+            // Log aktivitas untuk dashboard
+            let activities = JSON.parse(localStorage.getItem('hrflow_activities')) || [];
+            activities.unshift({ text: `Tiket baru ${id} dari ${newTicket.employeeName}`, time: new Date().toLocaleTimeString() });
+            localStorage.setItem('hrflow_activities', JSON.stringify(activities.slice(0, 20)));
+
+            document.getElementById('newTicketId').innerText = id;
+            document.getElementById('successModal').classList.remove('hidden');
+        }
+
+        function trackTicket(idToTrack = null) {
+            const inputId = idToTrack || document.getElementById('trackInput').value.trim().toUpperCase();
+            const tickets = JSON.parse(localStorage.getItem('hrflow_tickets')) || [];
+            const ticket = tickets.find(t => t.id === inputId);
+
+            if(!ticket) {
+                alert("ID Tiket tidak ditemukan.");
+                return;
+            }
+
+            document.getElementById('trackEmpty').classList.add('hidden');
+            document.getElementById('trackResult').classList.remove('hidden');
+            
+            document.getElementById('resName').innerText = ticket.employeeName;
+            document.getElementById('resId').innerText = `ID: ${ticket.id}`;
+            document.getElementById('resStatus').innerText = ticket.status;
+
+            // Reset steps
+            const stepIds = ['step-pending', 'step-progress', 'step-done'];
+            const statusMap = { 'Pending': 0, 'On Progress': 1, 'Done': 2 };
+            const activeIndex = statusMap[ticket.status];
+
+            stepIds.forEach((sid, idx) => {
+                const el = document.getElementById(sid);
+                const dot = el.querySelector('div');
+                const txt = el.querySelector('p');
+                
+                if(idx <= activeIndex) {
+                    el.classList.add('active');
+                    dot.classList.replace('bg-slate-200', 'bg-blue-600');
+                    txt.classList.replace('text-slate-400', 'text-blue-600');
+                    if(idx < activeIndex) dot.innerHTML = '<i data-lucide="check" size="10"></i>';
+                } else {
+                    el.classList.remove('active');
+                    dot.classList.replace('bg-blue-600', 'bg-slate-200');
+                    txt.classList.replace('text-blue-600', 'text-slate-400');
+                    dot.innerHTML = idx + 1;
+                }
+            });
+
+            // Logic for showing HR Progress Note
+            const resNoteEl = document.getElementById('resNote');
+            if (ticket.hrNote) {
+                resNoteEl.innerText = ticket.hrNote;
+            } else {
+                const defaultNotes = {
+                    'Pending': 'Laporan Anda sudah masuk antrian dan menunggu verifikasi HR.',
+                    'On Progress': 'Tim HR sedang menindaklanjuti permintaan Anda.',
+                    'Done': 'Laporan selesai diproses. Silahkan hubungi HR jika ada kendala lanjutan.'
+                };
+                resNoteEl.innerText = defaultNotes[ticket.status];
+            }
+            
+            lucide.createIcons();
+        }
+
+        function copyId() {
+            navigator.clipboard.writeText(currentGeneratedId);
+            alert("ID disalin: " + currentGeneratedId);
+        }
+
+        function closeAndTrack() {
+            document.getElementById('successModal').classList.add('hidden');
+            document.getElementById('trackInput').value = currentGeneratedId;
+            trackTicket(currentGeneratedId);
+        }
+    </script>
+</body>
+</html>
